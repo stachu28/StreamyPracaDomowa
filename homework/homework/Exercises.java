@@ -115,6 +115,9 @@ public class Exercises {
      * Dla każdej firmy uruchamia przekazaną metodę.
      */
     public static void executeForEachCompany(Consumer<Company> consumer) {
+        holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .forEach(consumer);
     }
 
     /**
