@@ -177,7 +177,10 @@ public class Exercises {
      * Zwraca listę wszystkich imion w postaci Stringa, gdzie imiona oddzielone są spacją i nie zawierają powtórzeń.
      */
     public static String getUserNames() {
-        return null;
+        return getUserStream()
+                .map(User::getFirstName)
+                .distinct()
+                .collect(Collectors.joining(", "));
     }
 
     /**
