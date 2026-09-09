@@ -84,7 +84,10 @@ public class Exercises {
      * po zakończeniu działania strumienia.
      */
     public static LinkedList<String> getAllCompaniesNamesAsLinkedList() {
-        return null;
+        return holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .map(Company::getName)
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 
     /**
