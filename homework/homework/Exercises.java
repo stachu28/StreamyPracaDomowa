@@ -193,26 +193,24 @@ public class Exercises {
      * Zwraca strumień wszystkich firm.
      */
     private static Stream<Company> getCompanyStream() {
-        return null;
+        return holdings.stream()
+                .flatMap(holding -> holding.getCompanies().stream());
     }
 
     /**
      * Tworzy strumień użytkowników.
      */
     private static Stream<User> getUserStream() {
-        return holdings.stream()
-                .flatMap(h -> h.getCompanies().stream())
-                .flatMap(c -> c.getUsers().stream());
+        return getCompanyStream()
+                .flatMap(company -> company.getUsers().stream());
     }
 
     /**
      * Tworzy strumień rachunków.
      */
     private static Stream<Account> getAccoutStream() {
-        return holdings.stream()
-                .flatMap(h -> h.getCompanies().stream())
-                .flatMap(c -> c.getUsers().stream())
-                .flatMap(u -> getAccoutStream());
+        return getUserStream()
+                .flatMap(user -> user.getAccounts().stream());
     }
 
     // =================================================================================
