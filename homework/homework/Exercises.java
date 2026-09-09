@@ -63,7 +63,9 @@ public class Exercises {
      * Zwraca liczbę firm we wszystkich holdingach.
      */
     public static long getCompaniesAmount() {
-        return 0;
+        return holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .count();
     }
 
 
