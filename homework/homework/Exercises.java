@@ -150,7 +150,8 @@ public class Exercises {
      * Zwraca mapę firm, gdzie kluczem jest jej nazwa a wartością lista pracowników.
      */
     public static Map<String, List<User>> getUserPerCompany() {
-        return null;
+        return getCompanyStream()
+                .collect(Collectors.toMap(Company::getName, Company::getUsers));
     }
 
     /**
