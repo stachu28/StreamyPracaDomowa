@@ -140,7 +140,10 @@ public class Exercises {
      * Zwraca nazwy pierwszych N firm. Kolejność nie ma znaczenia.
      */
     private static Set<String> getFirstNCompany(final int n) {
-        return null;
+        return getCompanyStream()
+                .limit(n)
+                .map(Company::getName)
+                .collect(Collectors.toSet());
     }
 
     /**
