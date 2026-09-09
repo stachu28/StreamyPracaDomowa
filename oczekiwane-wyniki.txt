@@ -1,0 +1,366 @@
+Oczekiwany wynik metody main() po poprawnym rozwiazaniu WSZYSTKICH zadan.
+(w czesci D dodatkowo po naprawie D3 i odkomentowaniu linii w metodzie raport())
+
+Kolejnosc elementow w zbiorach (Set) i w mapach bez wymuszonej kolejnosci moze sie
+u Ciebie roznic - raport sortuje je przy wypisywaniu, zeby dalo sie porownywac.
+Liczby musza sie zgadzac do drugiego miejsca po przecinku.
+
+==============================================================================
+  CZESC A - podstawy
+==============================================================================
+- A1  getHoldingsWhereAreCompanies:
+    3
+- A2  getHoldingNames:
+    NESTLE
+    COCA-COLA
+    PEPSICO
+- A3  getHoldingNamesAsString:
+    (Coca-Cola, Nestle, Pepsico)
+- A4  getCompaniesAmount:
+    8
+- A5  getAllUserAmount:
+    20
+- A6  getAllCompaniesNamesAsLinkedList:
+    Nescafe
+    Gerber
+    Nestea
+    Fanta
+    Sprite
+    Lays
+    Pepsi
+    Mirinda
+- A7  getAccountAmountInPLN(1000 EUR):
+    4230.00
+- A8  getUsersForPredicate(wiek > 40):
+    Jan
+    Karol
+    Mariusz
+    Zosia
+- A9  executeForEachCompany(wypisz nazwe):
+    Nescafe
+    Gerber
+    Nestea
+    Fanta
+    Sprite
+    Lays
+    Pepsi
+    Mirinda
+- A10 getRichestWoman:
+    Optional[Zosia Psikuta (67, WOMAN, zosia.psikuta@sprite.com)]
+- A11 getFirstNCompany(3):
+    Gerber
+    Nescafe
+    Nestea
+- A12 getUserPerCompany:
+    Fanta -> [Adam Wojcik (17, MAN, adam.wojcik@fanta.com), Mateusz Kowalski (33, MAN, mateusz.kowalski@fanta.com), Bartek Pasibrzuch (18, OTHER, bartek.pasibrzuch@fanta.com)]
+    Gerber -> [Zenon Kucowski (21, OTHER, zenon.kucowski@gerber.com), Mariusz Dreh (50, OTHER, mariusz.dreh@nestle-group.com), Marcin Marcinowicz (37, MAN, marcin.marcinowicz@gerber.com)]
+    Lays -> [Kasia Nawalka (29, WOMAN, kasia.nawalka@lays.com), Martin Prawicowy (29, MAN, martin.prawicowy@lays.com)]
+    Mirinda -> [Zenek Jawowy (22, MAN, zenek.jawowy@mirinda.com), Alfred Pasibrzuch (40, MAN, alfred.pasibrzuch@mirinda.com)]
+    Nescafe -> [Magdalena Warszawska (33, WOMAN, magdalena.warszawska@nescafe.com), Amadeusz Mocarz (29, MAN, amadeusz.mocarz@nescafe.com), Filip Flirciczart (33, MAN, filip.flirciczart@nescafe.com), Zenek Biednapalka (18, MAN, zenek.biednapalka@nescafe.com)]
+    Nestea -> [Jan Nowicki (45, MAN, jan.nowicki@nestea.com)]
+    Pepsi -> [Karol Romanowicz (64, MAN, karol.romanowicz@pepsi.com), Marta Wialkibuz (33, WOMAN, marta.wialkibuz@mirinda.com), Patryk Piwny (28, MAN, patryk.piwny@pepsi.com)]
+    Sprite -> [Jan Bazuka (46, MAN, jan.bazuka@sprite.com), Zosia Psikuta (67, WOMAN, zosia.psikuta@sprite.com)]
+- A13 getUser(imie = Kasia):
+    Kasia Nawalka (29, WOMAN, kasia.nawalka@lays.com)
+- A14 createAccountsMap().size():
+    34
+- A15 getUserNames:
+    Magdalena Amadeusz Filip Zenek Zenon Mariusz Marcin Jan Adam Mateusz Bartek Zosia Kasia Martin Karol Marta Patryk Alfred
+- A16 showAllUser:
+Zosia Psikuta
+Zenon Kucowski
+Zenek Jawowy
+Zenek Biednapalka
+Patryk Piwny
+Mateusz Kowalski
+Martin Prawicowy
+Marta Wialkibuz
+Mariusz Dreh
+Marcin Marcinowicz
+Magdalena Warszawska
+Kasia Nawalka
+Karol Romanowicz
+Jan Nowicki
+Jan Bazuka
+Filip Flirciczart
+Bartek Pasibrzuch
+Amadeusz Mocarz
+Alfred Pasibrzuch
+Adam Wojcik
+- A17 getCurenciesSet:
+    CHF
+    EUR
+    PLN
+    USD
+- A18 getCompanyStream().count():
+    8
+- A19 getUserStream().count():
+    20
+- A20 getAccoutStream().count():
+    34
+
+==============================================================================
+  CZESC B - Collectors
+==============================================================================
+- B1  getCompaniesCountPerCountry:
+    CH -> 1
+    DE -> 1
+    FR -> 1
+    GB -> 1
+    PL -> 2
+    US -> 2
+- B2  getCompanyNamesPerRegionAndCountry:
+    EUROPE -> {CH=[Nescafe], PL=[Nestea, Fanta], DE=[Sprite], GB=[Lays], FR=[Mirinda]}
+    NORTH_AMERICA -> {US=[Gerber, Pepsi]}
+- B3  getTotalBalanceInPlnPerHolding:
+    Coca-Cola -> 16668689.59
+    Nestle -> 712054.74
+    Pepsico -> 10535622.34
+- B4  getAccountNumbersPerType:
+    ROR1 -> [65423, 1178, 8967, 112221, 1234, 2346, 7676, 0192, 8474]
+    ROR2 -> [45218, 2322255, 666622, 998292]
+    RO1 -> [72446, 90753, 971561, 867151, 862252, 3892, 62222]
+    RO2 -> [87631, 865423, 34563, 1122, 73344, 3457117]
+    LO1 -> [1235478, 6754, 8723212, 24578, 0000064, 938383]
+    LO2 -> [9612541, 97156221]
+- B5  partitionUserNamesByAge(30):
+    false -> [Amadeusz Mocarz, Zenek Biednapalka, Zenon Kucowski, Adam Wojcik, Bartek Pasibrzuch, Kasia Nawalka, Martin Prawicowy, Patryk Piwny, Zenek Jawowy]
+    true -> [Magdalena Warszawska, Filip Flirciczart, Mariusz Dreh, Marcin Marcinowicz, Jan Nowicki, Mateusz Kowalski, Jan Bazuka, Zosia Psikuta, Karol Romanowicz, Marta Wialkibuz, Alfred Pasibrzuch]
+- B6  getUsersCountPerCompanyDescending:
+    Nescafe -> 4
+    Fanta -> 3
+    Gerber -> 3
+    Pepsi -> 3
+    Lays -> 2
+    Mirinda -> 2
+    Sprite -> 2
+    Nestea -> 1
+- B7  getUserWithMostAccounts:
+    Optional[Marcin Marcinowicz (37, MAN, marcin.marcinowicz@gerber.com)]
+- B8  getAverageAgePerSex:
+    MAN -> 33.92307692307692
+    WOMAN -> 40.5
+    OTHER -> 29.666666666666668
+- B9  getAgeStatistics:
+    IntSummaryStatistics{count=20, sum=692, min=17, average=34.600000, max=67}
+- B10 getTotalBalancePerCurrency:
+    PLN -> 18442157.83
+    EUR -> 1963650.90
+    USD -> 46800.36
+    CHF -> 259495.61
+- B11 getTopRichestUsers(5):
+    Jan Bazuka - 16231546.50 PLN
+    Karol Romanowicz - 10418404.21 PLN
+    Marcin Marcinowicz - 708523.71 PLN
+    Zosia Psikuta - 427517.22 PLN
+    Marta Wialkibuz - 53133.59 PLN
+- B12 getUsersCountPerPermit:
+    TRANSFER -> 15
+    ORDER_HISTORY -> 13
+    LOAN -> 16
+    DEPOSIT -> 15
+- B13 getUserNamesPerCompanyAndSex:
+    Fanta -> {MAN=[Adam Wojcik, Mateusz Kowalski], OTHER=[Bartek Pasibrzuch]}
+    Gerber -> {MAN=[Marcin Marcinowicz], OTHER=[Zenon Kucowski, Mariusz Dreh]}
+    Lays -> {MAN=[Martin Prawicowy], WOMAN=[Kasia Nawalka]}
+    Mirinda -> {MAN=[Zenek Jawowy, Alfred Pasibrzuch]}
+    Nescafe -> {MAN=[Amadeusz Mocarz, Filip Flirciczart, Zenek Biednapalka], WOMAN=[Magdalena Warszawska]}
+    Nestea -> {MAN=[Jan Nowicki]}
+    Pepsi -> {MAN=[Karol Romanowicz, Patryk Piwny], WOMAN=[Marta Wialkibuz]}
+    Sprite -> {MAN=[Jan Bazuka], WOMAN=[Zosia Psikuta]}
+- B14 getPermitsHistogram:
+    LOAN           ################ (16)
+    DEPOSIT        ############### (15)
+    TRANSFER       ############### (15)
+    ORDER_HISTORY  ############# (13)
+- B15 getAverageBalanceInPlnPerCategory:
+    CURRENT -> 1292086.40
+    SAVINGS -> 840498.55
+    DEPOSIT -> 24095.29
+- B16 getDuplicatedFirstNames:
+    Jan
+    Zenek
+- B17 getRichestAccountPerCurrency:
+    PLN -> Optional[3457117 [RO2] 10000984 PLN, otwarte 2025-05-22]
+    EUR -> Optional[1234 [ROR1] 1888822.1 EUR, otwarte 2016-05-10]
+    USD -> Optional[9612541 [LO2] 23500.86 USD, otwarte 2018-03-21]
+    CHF -> Optional[862252 [RO1] 123771 CHF, otwarte 2021-09-17]
+- B18 getYearlyInterestInPlnPerCategory:
+    CURRENT -> 2139.84
+    SAVINGS -> 335492.53
+    DEPOSIT -> 10775.98
+- B19 getUserNamesPerAgeBracket:
+    10-19 -> [Zenek Biednapalka, Adam Wojcik, Bartek Pasibrzuch]
+    20-29 -> [Amadeusz Mocarz, Zenon Kucowski, Kasia Nawalka, Martin Prawicowy, Patryk Piwny, Zenek Jawowy]
+    30-39 -> [Magdalena Warszawska, Filip Flirciczart, Marcin Marcinowicz, Mateusz Kowalski, Marta Wialkibuz]
+    40-49 -> [Jan Nowicki, Jan Bazuka, Alfred Pasibrzuch]
+    50-59 -> [Mariusz Dreh]
+    60-69 -> [Zosia Psikuta, Karol Romanowicz]
+
+==============================================================================
+  CZESC C - wyzsza szkola jazdy
+==============================================================================
+- C1  getCompanyUserStream().count():
+    20
+- C2  getCompanyNamesPerPermit:
+    TRANSFER -> [Fanta, Gerber, Lays, Mirinda, Nescafe, Nestea, Pepsi, Sprite]
+    ORDER_HISTORY -> [Fanta, Gerber, Lays, Mirinda, Nescafe, Nestea, Pepsi, Sprite]
+    LOAN -> [Fanta, Gerber, Lays, Mirinda, Nescafe, Nestea, Pepsi, Sprite]
+    DEPOSIT -> [Fanta, Gerber, Lays, Mirinda, Nescafe, Pepsi, Sprite]
+- C3  getAccountRowStream().count():
+    34
+- C4  getCumulativeBalanceInPlnByOpenDate:
+    2346 -> 8236626.12
+    938383 -> 8243394.12
+    1234 -> 16233111.60
+    867151 -> 16342934.60
+    8723212 -> 16351992.80
+    3892 -> 16652317.73
+    9612541 -> 16739740.93
+    112221 -> 16741408.15
+    0000064 -> 16777737.67
+    6754 -> 16777748.17
+    72446 -> 16777748.20
+    90753 -> 16777748.20
+    45218 -> 17195168.41
+    1122 -> 17195540.41
+    1178 -> 17199258.55
+    998292 -> 17204877.16
+    1235478 -> 17204878.16
+    7676 -> 17210081.06
+    8967 -> 17214311.06
+    24578 -> 17267444.65
+    862252 -> 17741487.58
+    0192 -> 17830377.58
+    65423 -> 17831178.57
+    34563 -> 17833524.57
+    666622 -> 17834623.78
+    73344 -> 17834623.78
+    87631 -> 17835006.78
+    971561 -> 17872203.06
+    2322255 -> 17876033.06
+    8474 -> 17914335.36
+    97156221 -> 17914373.66
+    62222 -> 17915382.66
+    865423 -> 17915382.66
+    3457117 -> 27916366.66
+- C5  getTotalBalanceInPlnPerOpeningYear:
+    2015 -> 8236626.12
+    2016 -> 8106308.48
+    2017 -> 309383.12
+    2018 -> 125419.94
+    2019 -> 417430.75
+    2020 -> 9709.75
+    2021 -> 536609.42
+    2022 -> 93136.20
+    2023 -> 37579.28
+    2024 -> 43179.60
+    2025 -> 10000984.00
+- C6  getAccountsCountPerOpeningWeekDay:
+    MONDAY -> 2
+    TUESDAY -> 4
+    WEDNESDAY -> 9
+    THURSDAY -> 7
+    FRIDAY -> 7
+    SATURDAY -> 4
+    SUNDAY -> 1
+- C7  getManagerChain(amadeusz.mocarz@nescafe.com):
+    Amadeusz Mocarz (29, MAN, amadeusz.mocarz@nescafe.com)
+    Magdalena Warszawska (33, WOMAN, magdalena.warszawska@nescafe.com)
+    Filip Flirciczart (33, MAN, filip.flirciczart@nescafe.com)
+    Jan Bazuka (46, MAN, jan.bazuka@sprite.com)
+    Zosia Psikuta (67, WOMAN, zosia.psikuta@sprite.com)
+- C7  getManagerChain(zenek.biednapalka@nescafe.com) [cykl]:
+    Zenek Biednapalka (18, MAN, zenek.biednapalka@nescafe.com)
+    Zenon Kucowski (21, OTHER, zenon.kucowski@gerber.com)
+- C7  getManagerChain(nieznany@nikt.com):
+    (pusta kolekcja)
+- C8  getOrgDepthPerEmail:
+    adam.wojcik@fanta.com -> 4
+    alfred.pasibrzuch@mirinda.com -> 1
+    amadeusz.mocarz@nescafe.com -> 5
+    bartek.pasibrzuch@fanta.com -> 4
+    filip.flirciczart@nescafe.com -> 3
+    jan.bazuka@sprite.com -> 2
+    jan.nowicki@nestea.com -> 2
+    karol.romanowicz@pepsi.com -> 1
+    kasia.nawalka@lays.com -> 4
+    magdalena.warszawska@nescafe.com -> 4
+    marcin.marcinowicz@gerber.com -> 2
+    mariusz.dreh@nestle-group.com -> 3
+    marta.wialkibuz@mirinda.com -> 2
+    martin.prawicowy@lays.com -> 3
+    mateusz.kowalski@fanta.com -> 3
+    patryk.piwny@pepsi.com -> 2
+    zenek.biednapalka@nescafe.com -> 2
+    zenek.jawowy@mirinda.com -> 2
+    zenon.kucowski@gerber.com -> 2
+    zosia.psikuta@sprite.com -> 1
+- C9  getUserWithLongestManagerChain:
+    Optional[Amadeusz Mocarz (29, MAN, amadeusz.mocarz@nescafe.com)]
+- C10 findUsersWithMismatchedEmailDomain:
+    mariusz.dreh@nestle-group.com
+    marta.wialkibuz@mirinda.com
+- C11 findUnknownManagerEmails:
+    ceo@holding.com
+- C12 buildHoldingReport:
+    Coca-Cola  firm: 2, pracownikow:  5, suma:        16668689.59 PLN
+    Nestle     firm: 3, pracownikow:  8, suma:          712054.74 PLN
+    Pepsico    firm: 3, pracownikow:  7, suma:        10535622.34 PLN
+- C13 sumInPlnCollector:
+    kolektor gotowy
+- C14 getTotalBalanceInPlnPerCity:
+    Berlin -> 16659063.73
+    Chicago -> 10507867.32
+    Kraków -> 2346.00
+    Londyn -> 10439.20
+    Lyon -> 17315.82
+    Nowy Jork -> 708523.71
+    Warszawa -> 9625.86
+    Zurych -> 1185.03
+- C15 findAccountsOpenedSameDayInSameCurrency:
+    2019-08-07 CHF: 72446, 90753
+    2021-01-11 EUR: 8967, 7676
+    2022-02-18 PLN: 65423, 0192
+    2024-02-29 CHF: 8474, 2322255
+- C16 countCheckedAccountsUntilFirstMatch(CHF):
+    2
+- C17 getCompanyNamesWhereAllUsersHaveAllPermits:
+    Gerber
+- C18 getTotalBalanceInPlnParallel:
+    27916366.66
+- C19 getCompanyNamesPerPermitWithMapMulti:
+    TRANSFER -> [Fanta, Gerber, Lays, Mirinda, Nescafe, Nestea, Pepsi, Sprite]
+    ORDER_HISTORY -> [Fanta, Gerber, Lays, Mirinda, Nescafe, Nestea, Pepsi, Sprite]
+    LOAN -> [Fanta, Gerber, Lays, Mirinda, Nescafe, Nestea, Pepsi, Sprite]
+    DEPOSIT -> [Fanta, Gerber, Lays, Mirinda, Nescafe, Pepsi, Sprite]
+
+==============================================================================
+  CZESC D - pulapki
+==============================================================================
+- D1  pulapkaReuzycieStreamu:
+    liczba=4, pierwsze=Adam
+- D2  pulapkaKolizjaWToMap:
+    Jan -> Bazuka / Nowicki
+    Zenek -> Jawowy / Biednapalka
+    Zosia -> Psikuta
+- D3  pulapkaNieskonczonyStream:
+    7
+    14
+    21
+    28
+    35
+    42
+    49
+    56
+    63
+    70
+- D4  pulapkaSideEffect:
+    6
+    6
+    8
+    3
+- D5  pulapkaBoxing:
+    692
+- D6  pulapkaOptionalGet:
+    brak takiego slowa
