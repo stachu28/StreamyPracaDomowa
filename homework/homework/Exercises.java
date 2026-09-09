@@ -94,7 +94,9 @@ public class Exercises {
      * Przelicza kwotę na rachunku na złotówki za pomocą kursu określonego w enum Currency.
      */
     public static BigDecimal getAccountAmountInPLN(Account account) {
-        return null;
+        return account.getAmount()
+                .multiply(BigDecimal.valueOf(account.getCurrency().getRate()))
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     /**
