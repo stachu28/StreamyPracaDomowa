@@ -209,7 +209,10 @@ public class Exercises {
      * Tworzy strumień rachunków.
      */
     private static Stream<Account> getAccoutStream() {
-        return null;
+        return holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .flatMap(c -> c.getUsers().stream())
+                .flatMap(u -> getAccoutStream());
     }
 
     // =================================================================================
