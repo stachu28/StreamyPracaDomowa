@@ -53,7 +53,10 @@ public class Exercises {
      * String ma postać: (Coca-Cola, Nestle, Pepsico)
      */
     public static String getHoldingNamesAsString() {
-        return null;
+        return holdings.stream()
+                .map(Holding::getName)
+                .sorted()
+                .collect(Collectors.joining(", "));
     }
 
     /**
