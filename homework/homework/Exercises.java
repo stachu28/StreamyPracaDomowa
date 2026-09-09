@@ -169,7 +169,8 @@ public class Exercises {
      * Zwraca mapę rachunków, gdzie kluczem jest numer rachunku, a wartością ten rachunek.
      */
     public static Map<String, Account> createAccountsMap() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.toMap(Account::getNumber, account -> account));
     }
 
     /**
