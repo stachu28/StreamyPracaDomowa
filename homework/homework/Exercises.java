@@ -188,6 +188,12 @@ public class Exercises {
      * Zosia Psikuta, Zenon Kucowski, Zenek Jawowy ... Alfred Pasibrzuch, Adam Wojcik
      */
     public static void showAllUser() {
+        getUserStream()
+                .sorted(Comparator.comparing(User::getFirstName)
+                        .thenComparing(User::getLastName)
+                        .reversed())
+                .map(user -> user.getFirstName() + " " + user.getLastName() + ", ")
+                .forEach(System.out::print);
     }
 
     /**
