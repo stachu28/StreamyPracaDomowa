@@ -129,7 +129,10 @@ public class Exercises {
     }
 
     private static BigDecimal getUserAmountInPLN(final User user) {
-        return null;
+        return user.getAccounts()
+                .stream()
+                .map(Exercises::getAccountAmountInPLN)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     /**
