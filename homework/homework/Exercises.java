@@ -155,7 +155,10 @@ public class Exercises {
      * wyjątek IllegalArgumentException.
      */
     public static User getUser(final Predicate<User> predicate) {
-        return null;
+        return getUserStream()
+                .filter(predicate)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("There is no such user!"));
     }
 
     /**
@@ -197,7 +200,9 @@ public class Exercises {
      * Tworzy strumień użytkowników.
      */
     private static Stream<User> getUserStream() {
-        return null;
+        return holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .flatMap(c -> c.getUsers().stream());
     }
 
     /**
