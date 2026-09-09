@@ -43,7 +43,9 @@ public class Exercises {
      * Napisz metodę, która zwróci nazwy wszystkich holdingów pisane z wielkiej litery w formie listy.
      */
     public static List<String> getHoldingNames() {
-        return null;
+        return holdings.stream()
+                .map(h -> h.getName().toUpperCase())
+                .collect(Collectors.toList());
     }
 
     /**
