@@ -34,7 +34,9 @@ public class Exercises {
      * Napisz metodę, która zwróci liczbę holdingów, w których jest przynajmniej jedna firma.
      */
     public static long getHoldingsWhereAreCompanies() {
-        return 0;
+        return holdings.stream()
+                .filter(h -> h.getCompanies() != null && !h.getCompanies().isEmpty())
+                .count();
     }
 
     /**
