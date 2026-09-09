@@ -73,7 +73,10 @@ public class Exercises {
      * Zwraca liczbę wszystkich pracowników we wszystkich firmach.
      */
     public static long getAllUserAmount() {
-        return 0;
+        return holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .flatMap(c -> c.getUsers().stream())
+                .count();
     }
 
     /**
