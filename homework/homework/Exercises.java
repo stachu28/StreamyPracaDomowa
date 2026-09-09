@@ -103,7 +103,12 @@ public class Exercises {
      * Zwraca imiona użytkowników w formie zbioru, którzy spełniają podany warunek.
      */
     public static Set<String> getUsersForPredicate(final Predicate<User> userPredicate) {
-        return null;
+        return holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .flatMap(c -> c.getUsers().stream())
+                .filter(userPredicate)
+                .map(User::getFirstName)
+                .collect(Collectors.toSet());
     }
 
     /**
