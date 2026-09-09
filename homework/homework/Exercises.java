@@ -125,7 +125,8 @@ public class Exercises {
      */
     //pomoc w rozwiązaniu problemu w zadaniu: https://stackoverflow.com/a/55052733/9360524
     public static Optional<User> getRichestWoman() {
-        return Optional.empty();
+        return getUserStream().filter(u -> u.getSex() == Sex.WOMAN)
+                .max(Comparator.comparing(Exercises::getUserAmountInPLN));
     }
 
     private static BigDecimal getUserAmountInPLN(final User user) {
