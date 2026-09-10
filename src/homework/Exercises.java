@@ -296,7 +296,12 @@ public class Exercises {
      * Podpowiedź: groupingBy z trzema argumentami i EnumMap jako fabryką mapy + mapping.
      */
     public static Map<AccountType, List<String>> getAccountNumbersPerType() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        Account::getType,
+                        () -> new EnumMap<>(AccountType.class),
+                        Collectors.mapping(Account::getNumber, Collectors.toList())
+                ));
     }
 
     /**
