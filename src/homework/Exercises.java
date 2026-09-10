@@ -258,7 +258,17 @@ public class Exercises {
      * Podpowiedź: groupingBy w groupingBy, a na końcu mapping.
      */
     public static Map<Region, Map<Country, List<String>>> getCompanyNamesPerRegionAndCountry() {
-        return null;
+        return getCompanyStream()
+                .collect(Collectors.groupingBy(
+                        (Company c) -> c.getCountry().getRegion(),
+                        Collectors.groupingBy(
+                                (Company c) -> c.getCountry(),
+                                Collectors.mapping(
+                                        (Company c) -> c.getName(),
+                                        Collectors.toList()
+                                )
+                        )
+                ));
     }
 
     /**
