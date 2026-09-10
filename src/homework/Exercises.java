@@ -1,11 +1,11 @@
 package homework;
 
 import homework.generator.HoldingGenerator;
+import homework.model.Holding;
 import homework.model.*;
 import homework.model.Currency;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -34,14 +34,18 @@ public class Exercises {
      * Napisz metodę, która zwróci liczbę holdingów, w których jest przynajmniej jedna firma.
      */
     public static long getHoldingsWhereAreCompanies() {
-        return 0;
+        return holdings.stream()
+                .filter(h -> h.getCompanies() != null && !h.getCompanies().isEmpty())
+                .count();
     }
 
     /**
      * Napisz metodę, która zwróci nazwy wszystkich holdingów pisane z wielkiej litery w formie listy.
      */
     public static List<String> getHoldingNames() {
-        return null;
+        return holdings.stream()
+                .map(h -> h.getName().toUpperCase())
+                .collect(Collectors.toList());
     }
 
     /**
@@ -49,14 +53,19 @@ public class Exercises {
      * String ma postać: (Coca-Cola, Nestle, Pepsico)
      */
     public static String getHoldingNamesAsString() {
-        return null;
+        return holdings.stream()
+                .map(Holding::getName)
+                .sorted()
+                .collect(Collectors.joining(", "));
     }
 
     /**
      * Zwraca liczbę firm we wszystkich holdingach.
      */
     public static long getCompaniesAmount() {
-        return 0;
+        return holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .count();
     }
 
 
@@ -64,7 +73,10 @@ public class Exercises {
      * Zwraca liczbę wszystkich pracowników we wszystkich firmach.
      */
     public static long getAllUserAmount() {
-        return 0;
+        return holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .flatMap(c -> c.getUsers().stream())
+                .count();
     }
 
     /**
@@ -72,27 +84,40 @@ public class Exercises {
      * po zakończeniu działania strumienia.
      */
     public static LinkedList<String> getAllCompaniesNamesAsLinkedList() {
-        return null;
+        return holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .map(Company::getName)
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 
     /**
      * Przelicza kwotę na rachunku na złotówki za pomocą kursu określonego w enum Currency.
      */
     public static BigDecimal getAccountAmountInPLN(Account account) {
-        return null;
+        return account.getAmount()
+                .multiply(BigDecimal.valueOf(account.getCurrency().getRate()))
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     /**
      * Zwraca imiona użytkowników w formie zbioru, którzy spełniają podany warunek.
      */
     public static Set<String> getUsersForPredicate(final Predicate<User> userPredicate) {
-        return null;
+        return holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .flatMap(c -> c.getUsers().stream())
+                .filter(userPredicate)
+                .map(User::getFirstName)
+                .collect(Collectors.toSet());
     }
 
     /**
      * Dla każdej firmy uruchamia przekazaną metodę.
      */
     public static void executeForEachCompany(Consumer<Company> consumer) {
+        holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .forEach(consumer);
     }
 
     /**
@@ -100,25 +125,33 @@ public class Exercises {
      */
     //pomoc w rozwiązaniu problemu w zadaniu: https://stackoverflow.com/a/55052733/9360524
     public static Optional<User> getRichestWoman() {
-        return Optional.empty();
+        return getUserStream().filter(u -> u.getSex() == Sex.WOMAN)
+                .max(Comparator.comparing(Exercises::getUserAmountInPLN));
     }
 
     private static BigDecimal getUserAmountInPLN(final User user) {
-        return null;
+        return user.getAccounts()
+                .stream()
+                .map(Exercises::getAccountAmountInPLN)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     /**
      * Zwraca nazwy pierwszych N firm. Kolejność nie ma znaczenia.
      */
     private static Set<String> getFirstNCompany(final int n) {
-        return null;
+        return getCompanyStream()
+                .limit(n)
+                .map(Company::getName)
+                .collect(Collectors.toSet());
     }
 
     /**
      * Zwraca mapę firm, gdzie kluczem jest jej nazwa a wartością lista pracowników.
      */
     public static Map<String, List<User>> getUserPerCompany() {
-        return null;
+        return getCompanyStream()
+                .collect(Collectors.toMap(Company::getName, Company::getUsers));
     }
 
     /**
@@ -126,21 +159,28 @@ public class Exercises {
      * wyjątek IllegalArgumentException.
      */
     public static User getUser(final Predicate<User> predicate) {
-        return null;
+        return getUserStream()
+                .filter(predicate)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("There is no such user!"));
     }
 
     /**
      * Zwraca mapę rachunków, gdzie kluczem jest numer rachunku, a wartością ten rachunek.
      */
     public static Map<String, Account> createAccountsMap() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.toMap(Account::getNumber, account -> account));
     }
 
     /**
      * Zwraca listę wszystkich imion w postaci Stringa, gdzie imiona oddzielone są spacją i nie zawierają powtórzeń.
      */
     public static String getUserNames() {
-        return null;
+        return getUserStream()
+                .map(User::getFirstName)
+                .distinct()
+                .collect(Collectors.joining(", "));
     }
 
     /**
@@ -148,34 +188,45 @@ public class Exercises {
      * Zosia Psikuta, Zenon Kucowski, Zenek Jawowy ... Alfred Pasibrzuch, Adam Wojcik
      */
     public static void showAllUser() {
+        getUserStream()
+                .sorted(Comparator.comparing(User::getFirstName)
+                        .thenComparing(User::getLastName)
+                        .reversed())
+                .map(user -> user.getFirstName() + " " + user.getLastName() + ", ")
+                .forEach(System.out::println);
     }
 
     /**
      * Zwraca zbiór walut w jakich są rachunki.
      */
     public static Set<Currency> getCurenciesSet() {
-        return null;
+        return getAccoutStream()
+                .map(Account::getCurrency)
+                .collect(Collectors.toSet());
     }
 
     /**
      * Zwraca strumień wszystkich firm.
      */
     private static Stream<Company> getCompanyStream() {
-        return null;
+        return holdings.stream()
+                .flatMap(holding -> holding.getCompanies().stream());
     }
 
     /**
      * Tworzy strumień użytkowników.
      */
     private static Stream<User> getUserStream() {
-        return null;
+        return getCompanyStream()
+                .flatMap(company -> company.getUsers().stream());
     }
 
     /**
      * Tworzy strumień rachunków.
      */
     private static Stream<Account> getAccoutStream() {
-        return null;
+        return getUserStream()
+                .flatMap(user -> user.getAccounts().stream());
     }
 
     // =================================================================================
@@ -194,7 +245,11 @@ public class Exercises {
      * Podpowiedź: groupingBy + counting.
      */
     public static Map<Country, Long> getCompaniesCountPerCountry() {
-        return null;
+        return getCompanyStream()
+                .collect(Collectors.groupingBy(
+                        Company::getCountry,
+                        Collectors.counting()
+                ));
     }
 
     /**
