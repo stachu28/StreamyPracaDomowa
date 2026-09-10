@@ -310,7 +310,14 @@ public class Exercises {
      * Podpowiedź: partitioningBy z kolektorem downstream.
      */
     public static Map<Boolean, List<String>> partitionUserNamesByAge(final int age) {
-        return null;
+        return getUserStream()
+                .collect(Collectors.partitioningBy(
+                        u -> u.getAge() >= age,
+                        Collectors.mapping(
+                                user -> user.getFirstName() + " " + user.getLastName(),
+                                Collectors.toList()
+                        )
+                ));
     }
 
     /**
