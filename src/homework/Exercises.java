@@ -278,7 +278,16 @@ public class Exercises {
      * Podpowiedź: BigDecimal nie ma Collectors.summingBigDecimal – użyj reduce albo Collectors.reducing.
      */
     public static Map<String, BigDecimal> getTotalBalanceInPlnPerHolding() {
-        return null;
+        return holdings.stream()
+                .collect(Collectors.toMap(
+                        Holding::getName,
+                        holding -> holding.getCompanies().stream()
+                                .flatMap(company -> company.getUsers().stream())
+                                .flatMap(user -> user.getAccounts().stream())
+                                .map(Exercises::getAccountAmountInPLN)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                                .setScale(2, RoundingMode.HALF_UP)
+                ));
     }
 
     /**
