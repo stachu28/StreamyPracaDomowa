@@ -346,7 +346,9 @@ public class Exercises {
      * Podpowiedź: Comparator.comparingInt(...).thenComparing(...).
      */
     public static Optional<User> getUserWithMostAccounts() {
-        return null;
+        return getUserStream()
+                .max(Comparator.comparingInt((User user) -> user.getAccounts().size())
+                        .thenComparing(User::getLastName));
     }
 
     /**
