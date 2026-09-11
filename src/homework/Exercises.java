@@ -409,7 +409,13 @@ public class Exercises {
      * Podpowiedź: jeden pracownik ma wiele uprawnień – zacznij od flatMap.
      */
     public static Map<Permit, Long> getUsersCountPerPermit() {
-        return null;
+        return getUserStream()
+                .flatMap(user -> user.getPermits().stream())
+                .collect(Collectors.groupingBy(
+                        permit -> permit,
+                        () -> new EnumMap<>(Permit.class),
+                        Collectors.counting()
+                ));
     }
 
     /**
