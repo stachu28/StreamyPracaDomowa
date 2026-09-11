@@ -395,7 +395,13 @@ public class Exercises {
      * Przy tej samej kwocie decyduje alfabetyczna kolejność nazwiska.
      */
     public static List<String> getTopRichestUsers(final int n) {
-        return null;
+        return getUserStream()
+                .sorted(Comparator.comparing(Exercises::getUserAmountInPLN).reversed()
+                        .thenComparing(User::getLastName))
+                .limit(n)
+                .map(user -> user.getFirstName() + " " + user.getLastName() + " - " + getUserAmountInPLN(user)
+                        + Currency.PLN)
+                .collect(Collectors.toList());
     }
 
     /**
