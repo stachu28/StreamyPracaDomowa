@@ -368,7 +368,9 @@ public class Exercises {
      * Podpowiedź: strumień prymitywny i summaryStatistics().
      */
     public static IntSummaryStatistics getAgeStatistics() {
-        return null;
+        return getUserStream()
+                .mapToInt(User::getAge)
+                .summaryStatistics();
     }
 
     /**
