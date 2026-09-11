@@ -312,7 +312,7 @@ public class Exercises {
     public static Map<Boolean, List<String>> partitionUserNamesByAge(final int age) {
         return getUserStream()
                 .collect(Collectors.partitioningBy(
-                        u -> u.getAge() >= age,
+                        user -> user.getAge() >= age,
                         Collectors.mapping(
                                 user -> user.getFirstName() + " " + user.getLastName(),
                                 Collectors.toList()
@@ -326,7 +326,18 @@ public class Exercises {
      * Kolejność MUSI być zachowana po zwróceniu mapy – zwróć uwagę na implementację mapy.
      */
     public static LinkedHashMap<String, Long> getUsersCountPerCompanyDescending() {
-        return null;
+        return getCompanyStream()
+                .collect(Collectors.toMap(
+                        Company::getName,
+                        company -> (long) company.getUsers().size()))
+                .entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed()
+                        .thenComparing(Map.Entry.comparingByKey()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (a, b) -> a,
+                        LinkedHashMap::new));
     }
 
     /**
