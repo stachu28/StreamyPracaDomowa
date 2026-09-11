@@ -378,7 +378,15 @@ public class Exercises {
      * sumujemy kwoty w ich własnej walucie. Mapa w kolejności enuma Currency.
      */
     public static Map<Currency, BigDecimal> getTotalBalancePerCurrency() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        Account::getCurrency,
+                        () -> new EnumMap<>(Currency.class),
+                        Collectors.reducing(
+                                BigDecimal.ZERO,
+                                Account::getAmount,
+                                BigDecimal::add)
+                        ));
     }
 
     /**
