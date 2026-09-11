@@ -355,7 +355,11 @@ public class Exercises {
      * Zwraca mapę: płeć -> średni wiek pracowników tej płci. Mapa w kolejności enuma Sex.
      */
     public static Map<Sex, Double> getAverageAgePerSex() {
-        return null;
+        return getUserStream()
+                .collect(Collectors.groupingBy(
+                        User::getSex,
+                        () -> new EnumMap<>(Sex.class),
+                        Collectors.averagingInt(User::getAge)));
     }
 
     /**
