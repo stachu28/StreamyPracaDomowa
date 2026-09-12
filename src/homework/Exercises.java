@@ -527,7 +527,12 @@ public class Exercises {
      * W mapie nie może być pustych przedziałów.
      */
     public static TreeMap<String, List<String>> getUserNamesPerAgeBracket() {
-        return null;
+        return getUserStream()
+                .collect(Collectors.groupingBy(
+                        user -> (user.getAge() / 10 * 10) + "-" + (user.getAge() / 10 * 10 + 9),
+                        TreeMap::new,
+                        Collectors.mapping(user -> user.getFirstName() + " " + user.getLastName(),
+                                Collectors.toList())));
     }
 
     // =================================================================================
