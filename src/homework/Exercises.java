@@ -505,7 +505,20 @@ public class Exercises {
      * Podpowiedź: BigDecimal.movePointLeft(2) jest bezpieczniejsze niż divide(BigDecimal.valueOf(100)).
      */
     public static Map<AccountCategory, BigDecimal> getYearlyInterestInPlnPerCategory() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        a -> a.getType().getCategory(),
+                        () -> new EnumMap<>(AccountCategory.class),
+                        Collectors.collectingAndThen(
+                        Collectors.reducing(
+                                BigDecimal.ZERO,
+                                a -> getAccountAmountInPLN(a)
+                                        .multiply(a.getType().getInterestRate())
+                                        .movePointLeft(2),
+                                BigDecimal::add
+                        ),
+                                sum -> sum.setScale(2, RoundingMode.HALF_UP))
+                ));
     }
 
     /**
