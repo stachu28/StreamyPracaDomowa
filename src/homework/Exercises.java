@@ -569,7 +569,17 @@ public class Exercises {
      * Podpowiedź: wykorzystaj getCompanyUserStream, a potem Map.entry jako parę uprawnienie-firma.
      */
     public static Map<Permit, Set<String>> getCompanyNamesPerPermit() {
-        return null;
+        return getCompanyUserStream()
+                .flatMap(companyUser -> companyUser.user.getPermits().stream()
+                        .map(permit -> Map.entry(permit, companyUser.company().getName())))
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        () -> new EnumMap<>(Permit.class),
+                        Collectors.mapping(
+                                Map.Entry::getValue,
+                                Collectors.toCollection(TreeSet::new)
+                        )
+                ));
     }
 
     /**
