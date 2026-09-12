@@ -625,7 +625,17 @@ public class Exercises {
      * Podpowiedź: groupingBy z TreeMap::new oraz collectingAndThen do zaokrąglenia sumy.
      */
     public static Map<Integer, BigDecimal> getTotalBalanceInPlnPerOpeningYear() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        account -> account.getOpenedAt().getYear(),
+                        TreeMap::new,
+                        Collectors.collectingAndThen(
+                                Collectors.reducing(
+                                        BigDecimal.ZERO,
+                                        Exercises::getAccountAmountInPLN,
+                                        BigDecimal::add),
+                                sum -> sum.setScale(2, RoundingMode.HALF_UP)))
+                );
     }
 
     /**
