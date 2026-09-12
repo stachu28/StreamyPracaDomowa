@@ -475,7 +475,14 @@ public class Exercises {
      * Zwraca zbiór imion, które w danych występują więcej niż raz.
      */
     public static Set<String> getDuplicatedFirstNames() {
-        return null;
+        return getUserStream()
+                .collect(Collectors.groupingBy(
+                        User::getFirstName,
+                        Collectors.counting()))
+                .entrySet().stream()
+                .filter(name -> name.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
     }
 
     /**
