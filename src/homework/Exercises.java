@@ -558,7 +558,9 @@ public class Exercises {
      * Podpowiedź: mapowanie wewnątrz flatMap.
      */
     public static Stream<CompanyUser> getCompanyUserStream() {
-        return null;
+        return getCompanyStream()
+                .flatMap(company -> company.getUsers().stream()
+                        .map(user -> new CompanyUser(company, user)));
     }
 
     /**
