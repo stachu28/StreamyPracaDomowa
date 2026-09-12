@@ -605,7 +605,18 @@ public class Exercises {
      * ale w komentarzu napisz, dlaczego takie rozwiązanie NIE zadziała na strumieniu równoległym.
      */
     public static LinkedHashMap<String, BigDecimal> getCumulativeBalanceInPlnByOpenDate() {
-        return null;
+        BigDecimal[] sum = {BigDecimal.ZERO};
+        return getAccoutStream()
+                .sorted(Comparator.comparing(Account::getOpenedAt)
+                        .thenComparing(Account::getNumber))
+                .collect(Collectors.toMap(
+                        Account::getNumber,
+                        account -> {
+                            sum[0] = sum[0].add(getAccountAmountInPLN(account));
+                            return sum[0].setScale(2, RoundingMode.HALF_UP);
+                        },
+                        (a, b) -> a,
+                        LinkedHashMap::new));
     }
 
     /**
