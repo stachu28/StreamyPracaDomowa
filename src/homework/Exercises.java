@@ -458,7 +458,17 @@ public class Exercises {
      * Podpowiedź: Collectors.teeing – jednym kolektorem sumujesz, drugim liczysz, a w funkcji scalającej dzielisz.
      */
     public static Map<AccountCategory, BigDecimal> getAverageBalanceInPlnPerCategory() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        account -> account.getType().getCategory(),
+                        () -> new EnumMap<>(AccountCategory.class),
+                        Collectors.teeing(
+                                Collectors.reducing(BigDecimal.ZERO, Exercises::getAccountAmountInPLN, BigDecimal::add),
+                                Collectors.counting(),
+                                (amountSum, accountNumber) -> amountSum.divide(BigDecimal.valueOf(accountNumber), 2,
+                                        RoundingMode.HALF_UP)
+                        )
+                ));
     }
 
     /**
