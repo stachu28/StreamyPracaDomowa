@@ -444,7 +444,12 @@ public class Exercises {
      * Podpowiedź: String.format("%-14s %s (%d)", ...), "#".repeat(n) i Collectors.joining("\n").
      */
     public static String getPermitsHistogram() {
-        return null;
+        return getUsersCountPerPermit().entrySet().stream()
+                .sorted(Map.Entry.<Permit, Long>comparingByValue().reversed()
+                        .thenComparing(Map.Entry.comparingByKey()))
+                .map(e -> String.format("%-14s %s (%d)", e.getKey(), "#".repeat(e.getValue().intValue()),
+                        e.getValue()))
+                .collect(Collectors.joining("\n"));
     }
 
     /**
