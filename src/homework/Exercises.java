@@ -587,7 +587,11 @@ public class Exercises {
      * Czteropoziomowy flatMap. Ten strumień to podstawa raportów w kolejnych zadaniach.
      */
     public static Stream<AccountRow> getAccountRowStream() {
-        return null;
+        return holdings.stream()
+                .flatMap(holding -> holding.getCompanies().stream()
+                        .flatMap(company -> company.getUsers().stream()
+                                .flatMap(user -> user.getAccounts().stream()
+                                        .map(account -> new AccountRow(holding, company, user, account)))));
     }
 
     /**
