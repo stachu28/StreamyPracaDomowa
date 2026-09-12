@@ -423,7 +423,17 @@ public class Exercises {
      * Wewnętrzna mapa ma być w kolejności enuma Sex i nie może zawierać płci, których w firmie nie ma.
      */
     public static Map<String, Map<Sex, List<String>>> getUserNamesPerCompanyAndSex() {
-        return null;
+        return getCompanyStream()
+                .collect(Collectors.toMap(
+                        Company::getName,
+                        company -> company.getUsers().stream()
+                                .collect(Collectors.groupingBy(
+                                        User::getSex,
+                                        () -> new EnumMap<>(Sex.class),
+                                        Collectors.mapping(
+                                                user -> user.getFirstName() + " " + user.getLastName(),
+                                                Collectors.toList())))
+                ));
     }
 
     /**
