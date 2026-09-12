@@ -490,7 +490,12 @@ public class Exercises {
      * Zwróć uwagę na typ wartości – kolektor maxBy zwraca Optional i tak ma zostać.
      */
     public static Map<Currency, Optional<Account>> getRichestAccountPerCurrency() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        Account::getCurrency,
+                        () -> new EnumMap<>(Currency.class),
+                        Collectors.maxBy(Comparator.comparing(Account::getAmount))
+                ));
     }
 
     /**
