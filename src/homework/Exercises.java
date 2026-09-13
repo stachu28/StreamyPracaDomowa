@@ -643,7 +643,12 @@ public class Exercises {
      * Mapa w naturalnej kolejności dni tygodnia (poniedziałek najpierw), bez dni, w których nic nie otwarto.
      */
     public static Map<DayOfWeek, Long> getAccountsCountPerOpeningWeekDay() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        account -> account.getOpenedAt().getDayOfWeek(),
+                        () -> new EnumMap<>(DayOfWeek.class),
+                        Collectors.counting()
+                ));
     }
 
     /**
