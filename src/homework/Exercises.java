@@ -697,7 +697,11 @@ public class Exercises {
      * Zwraca pracownika o najdłuższej ścieżce przełożonych. Przy remisie wygrywa e-mail dalszy w alfabecie.
      */
     public static Optional<User> getUserWithLongestManagerChain() {
-        return null;
+        return getUserStream()
+                .max(Comparator.comparingInt(
+                        (User user) -> getManagerChain(user.getEmail()).size())
+                        .thenComparing(User::getEmail)
+                );
     }
 
     /**
