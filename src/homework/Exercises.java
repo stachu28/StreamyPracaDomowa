@@ -262,9 +262,9 @@ public class Exercises {
                 .collect(Collectors.groupingBy(
                         (Company c) -> c.getCountry().getRegion(),
                         Collectors.groupingBy(
-                                (Company c) -> c.getCountry(),
+                                Company::getCountry,
                                 Collectors.mapping(
-                                        (Company c) -> c.getName(),
+                                        Company::getName,
                                         Collectors.toList()
                                 )
                         )
@@ -684,7 +684,13 @@ public class Exercises {
      * getManagerChain). Mapa posortowana po e-mailu.
      */
     public static Map<String, Integer> getOrgDepthPerEmail() {
-        return null;
+        return getUserStream()
+                .collect(Collectors.toMap(
+                        User::getEmail,
+                        user -> getManagerChain(user.getEmail()).size(),
+                        (a, b) -> a,
+                        TreeMap::new
+                ));
     }
 
     /**
