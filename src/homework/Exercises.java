@@ -386,7 +386,7 @@ public class Exercises {
                                 BigDecimal.ZERO,
                                 Account::getAmount,
                                 BigDecimal::add)
-                        ));
+                ));
     }
 
     /**
@@ -510,13 +510,13 @@ public class Exercises {
                         a -> a.getType().getCategory(),
                         () -> new EnumMap<>(AccountCategory.class),
                         Collectors.collectingAndThen(
-                        Collectors.reducing(
-                                BigDecimal.ZERO,
-                                a -> getAccountAmountInPLN(a)
-                                        .multiply(a.getType().getInterestRate())
-                                        .movePointLeft(2),
-                                BigDecimal::add
-                        ),
+                                Collectors.reducing(
+                                        BigDecimal.ZERO,
+                                        a -> getAccountAmountInPLN(a)
+                                                .multiply(a.getType().getInterestRate())
+                                                .movePointLeft(2),
+                                        BigDecimal::add
+                                ),
                                 sum -> sum.setScale(2, RoundingMode.HALF_UP))
                 ));
     }
@@ -664,7 +664,19 @@ public class Exercises {
      * drugi raz na tę samą osobę.
      */
     public static List<User> getManagerChain(final String email) {
-        return null;
+        return getUserStream()
+                .filter(user -> user.getEmail().equals(email))
+                .findFirst()
+                .map(startUser -> Stream.iterate(
+                                startUser,
+                                user -> user != null && user.getManagerEmail() != null,
+                                user -> getUserStream()
+                                        .filter(manager -> manager.getEmail().equals(user.getManagerEmail()))
+                                        .findFirst()
+                                        .orElse(null))
+                        .takeWhile(new HashSet<>()::add)
+                        .collect(Collectors.toList()))
+                .orElse(List.of());
     }
 
     /**
