@@ -711,7 +711,11 @@ public class Exercises {
      * W danych są dwie takie osoby.
      */
     public static Set<String> findUsersWithMismatchedEmailDomain() {
-        return null;
+        return getCompanyUserStream()
+                .filter(companyUser -> !companyUser.user.getEmail()
+                        .endsWith("@" + companyUser.company().getName().toLowerCase() + ".com"))
+                .map(companyUser -> companyUser.user.getEmail())
+                .collect(Collectors.toSet());
     }
 
     /**
