@@ -669,7 +669,7 @@ public class Exercises {
                 .findFirst()
                 .map(startUser -> Stream.iterate(
                                 startUser,
-                                user -> user != null && user.getManagerEmail() != null,
+                                user -> user != null,
                                 user -> getUserStream()
                                         .filter(manager -> manager.getEmail().equals(user.getManagerEmail()))
                                         .findFirst()
