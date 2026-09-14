@@ -6,6 +6,7 @@ import homework.model.*;
 import homework.model.Currency;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -95,8 +96,9 @@ public class Exercises {
      */
     public static BigDecimal getAccountAmountInPLN(Account account) {
         return account.getAmount()
-                .multiply(BigDecimal.valueOf(account.getCurrency().getRate()))
-                .setScale(2, RoundingMode.HALF_UP);
+                .multiply(new BigDecimal(String.valueOf(account.getCurrency().getRate()))
+                        .round(new MathContext(10, RoundingMode.HALF_UP))
+                        .setScale(2, RoundingMode.HALF_UP));
     }
 
     /**
@@ -791,7 +793,15 @@ public class Exercises {
      * Podpowiedź: Collectors.mapping pozwala "przerobić" wiersz na rachunek przed przekazaniem do kolektora.
      */
     public static Map<String, BigDecimal> getTotalBalanceInPlnPerCity() {
-        return null;
+        return getAccountRowStream()
+                .collect(Collectors.groupingBy(
+                        row -> row.company().getCity(),
+                        TreeMap::new,
+                        Collectors.mapping(
+                                AccountRow::account,
+                                sumInPlnCollector()
+                        )
+                ));
     }
 
     /**
