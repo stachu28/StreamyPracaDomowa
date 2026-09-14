@@ -774,7 +774,15 @@ public class Exercises {
      * najprościej użyć jednoelementowej tablicy BigDecimal[].
      */
     public static Collector<Account, ?, BigDecimal> sumInPlnCollector() {
-        return null;
+        return Collector.of(
+                () -> new BigDecimal[]{BigDecimal.ZERO},
+                (accumulator, account) -> accumulator[0] = accumulator[0].add(getAccountAmountInPLN(account)),
+                (accumulator1, accumulator2) -> {
+                    accumulator1[0] = accumulator1[0].add(accumulator2[0]);
+                    return accumulator1;
+                },
+                accumulator -> accumulator[0].setScale(2, RoundingMode.HALF_UP)
+        );
     }
 
     /**
