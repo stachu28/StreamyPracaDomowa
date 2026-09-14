@@ -699,7 +699,7 @@ public class Exercises {
     public static Optional<User> getUserWithLongestManagerChain() {
         return getUserStream()
                 .max(Comparator.comparingInt(
-                        (User user) -> getManagerChain(user.getEmail()).size())
+                                (User user) -> getManagerChain(user.getEmail()).size())
                         .thenComparing(User::getEmail)
                 );
     }
@@ -741,7 +741,30 @@ public class Exercises {
      * Podpowiedź: String.format i Collectors.joining("\n").
      */
     public static String buildHoldingReport() {
-        return null;
+        return holdings.stream()
+                .sorted(Comparator.comparing(Holding::getName))
+                .map(holding -> {
+                    var stats = holding.getCompanies().stream()
+                            .flatMap(company -> company.getUsers().stream())
+                            .collect(Collectors.teeing(
+                                    Collectors.counting(),
+                                    Collectors.reducing(
+                                            BigDecimal.ZERO,
+                                            Exercises::getUserAmountInPLN,
+                                            BigDecimal::add
+                                    ),
+                                    (number, sum) -> new Object[]{number, sum}
+                            ));
+                    long employees = (long) stats[0];
+                    BigDecimal sum = ((BigDecimal) stats[1])
+                            .setScale(2, RoundingMode.HALF_UP);
+                    return String.format("%-10s firm: %d, pracownikow: %2d, suma: %18s PLN",
+                            holding.getName(),
+                            holding.getCompanies().size(),
+                            employees,
+                            sum);
+                })
+                .collect(Collectors.joining("\n"));
     }
 
     /**
