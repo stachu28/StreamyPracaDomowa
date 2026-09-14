@@ -723,7 +723,12 @@ public class Exercises {
      * (czyli "wiszące" referencje).
      */
     public static Set<String> findUnknownManagerEmails() {
-        return null;
+        return getUserStream()
+                .map(User::getManagerEmail)
+                .filter(Objects::nonNull)
+                .filter(email -> getUserStream()
+                        .noneMatch(user -> user.getEmail().equals(email)))
+                .collect(Collectors.toSet());
     }
 
     /**
