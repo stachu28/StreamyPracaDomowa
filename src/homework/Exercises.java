@@ -833,7 +833,12 @@ public class Exercises {
      * w którym peek jest usprawiedliwiony.
      */
     public static long countCheckedAccountsUntilFirstMatch(final Predicate<Account> predicate) {
-        return 0;
+        long[] counter = {0};
+        getAccoutStream()
+                .peek(account -> counter[0]++)
+                .filter(predicate)
+                .findFirst();
+        return counter[0];
     }
 
     /**
@@ -843,7 +848,12 @@ public class Exercises {
      * skoro allMatch na pustym strumieniu nie rzuca wyjątkiem?
      */
     public static List<String> getCompanyNamesWhereAllUsersHaveAllPermits() {
-        return null;
+        return getCompanyStream()
+                .filter(company -> !company.getUsers().isEmpty())
+                .filter(company -> company.getUsers().stream()
+                        .allMatch(user -> user.getPermits().containsAll(Arrays.asList(Permit.values()))))
+                .map(Company::getName)
+                .sorted().collect(Collectors.toList());
     }
 
     /**
