@@ -1,6 +1,7 @@
 package homework;
 
 import homework.generator.HoldingGenerator;
+import homework.model.Holding;
 import homework.model.*;
 import homework.model.Currency;
 
@@ -34,14 +35,18 @@ public class Exercises {
      * Napisz metodę, która zwróci liczbę holdingów, w których jest przynajmniej jedna firma.
      */
     public static long getHoldingsWhereAreCompanies() {
-        return 0;
+        return holdings.stream()
+                .filter(h -> h.getCompanies() != null && !h.getCompanies().isEmpty())
+                .count();
     }
 
     /**
      * Napisz metodę, która zwróci nazwy wszystkich holdingów pisane z wielkiej litery w formie listy.
      */
     public static List<String> getHoldingNames() {
-        return null;
+        return holdings.stream()
+                .map(h -> h.getName().toUpperCase())
+                .collect(Collectors.toList());
     }
 
     /**
@@ -49,14 +54,19 @@ public class Exercises {
      * String ma postać: (Coca-Cola, Nestle, Pepsico)
      */
     public static String getHoldingNamesAsString() {
-        return null;
+        return holdings.stream()
+                .map(Holding::getName)
+                .sorted()
+                .collect(Collectors.joining(", "));
     }
 
     /**
      * Zwraca liczbę firm we wszystkich holdingach.
      */
     public static long getCompaniesAmount() {
-        return 0;
+        return holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .count();
     }
 
 
@@ -64,7 +74,10 @@ public class Exercises {
      * Zwraca liczbę wszystkich pracowników we wszystkich firmach.
      */
     public static long getAllUserAmount() {
-        return 0;
+        return holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .flatMap(c -> c.getUsers().stream())
+                .count();
     }
 
     /**
@@ -72,27 +85,41 @@ public class Exercises {
      * po zakończeniu działania strumienia.
      */
     public static LinkedList<String> getAllCompaniesNamesAsLinkedList() {
-        return null;
+        return holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .map(Company::getName)
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 
     /**
      * Przelicza kwotę na rachunku na złotówki za pomocą kursu określonego w enum Currency.
      */
     public static BigDecimal getAccountAmountInPLN(Account account) {
-        return null;
+        return account.getAmount()
+                .multiply(new BigDecimal(String.valueOf(account.getCurrency().getRate()))
+                        .round(new MathContext(10, RoundingMode.HALF_UP))
+                        .setScale(2, RoundingMode.HALF_UP));
     }
 
     /**
      * Zwraca imiona użytkowników w formie zbioru, którzy spełniają podany warunek.
      */
     public static Set<String> getUsersForPredicate(final Predicate<User> userPredicate) {
-        return null;
+        return holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .flatMap(c -> c.getUsers().stream())
+                .filter(userPredicate)
+                .map(User::getFirstName)
+                .collect(Collectors.toSet());
     }
 
     /**
      * Dla każdej firmy uruchamia przekazaną metodę.
      */
     public static void executeForEachCompany(Consumer<Company> consumer) {
+        holdings.stream()
+                .flatMap(h -> h.getCompanies().stream())
+                .forEach(consumer);
     }
 
     /**
@@ -100,25 +127,33 @@ public class Exercises {
      */
     //pomoc w rozwiązaniu problemu w zadaniu: https://stackoverflow.com/a/55052733/9360524
     public static Optional<User> getRichestWoman() {
-        return Optional.empty();
+        return getUserStream().filter(u -> u.getSex() == Sex.WOMAN)
+                .max(Comparator.comparing(Exercises::getUserAmountInPLN));
     }
 
     private static BigDecimal getUserAmountInPLN(final User user) {
-        return null;
+        return user.getAccounts()
+                .stream()
+                .map(Exercises::getAccountAmountInPLN)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     /**
      * Zwraca nazwy pierwszych N firm. Kolejność nie ma znaczenia.
      */
     private static Set<String> getFirstNCompany(final int n) {
-        return null;
+        return getCompanyStream()
+                .limit(n)
+                .map(Company::getName)
+                .collect(Collectors.toSet());
     }
 
     /**
      * Zwraca mapę firm, gdzie kluczem jest jej nazwa a wartością lista pracowników.
      */
     public static Map<String, List<User>> getUserPerCompany() {
-        return null;
+        return getCompanyStream()
+                .collect(Collectors.toMap(Company::getName, Company::getUsers));
     }
 
     /**
@@ -126,21 +161,28 @@ public class Exercises {
      * wyjątek IllegalArgumentException.
      */
     public static User getUser(final Predicate<User> predicate) {
-        return null;
+        return getUserStream()
+                .filter(predicate)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("There is no such user!"));
     }
 
     /**
      * Zwraca mapę rachunków, gdzie kluczem jest numer rachunku, a wartością ten rachunek.
      */
     public static Map<String, Account> createAccountsMap() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.toMap(Account::getNumber, account -> account));
     }
 
     /**
      * Zwraca listę wszystkich imion w postaci Stringa, gdzie imiona oddzielone są spacją i nie zawierają powtórzeń.
      */
     public static String getUserNames() {
-        return null;
+        return getUserStream()
+                .map(User::getFirstName)
+                .distinct()
+                .collect(Collectors.joining(", "));
     }
 
     /**
@@ -148,34 +190,45 @@ public class Exercises {
      * Zosia Psikuta, Zenon Kucowski, Zenek Jawowy ... Alfred Pasibrzuch, Adam Wojcik
      */
     public static void showAllUser() {
+        getUserStream()
+                .sorted(Comparator.comparing(User::getFirstName)
+                        .thenComparing(User::getLastName)
+                        .reversed())
+                .map(user -> user.getFirstName() + " " + user.getLastName() + ", ")
+                .forEach(System.out::println);
     }
 
     /**
      * Zwraca zbiór walut w jakich są rachunki.
      */
     public static Set<Currency> getCurenciesSet() {
-        return null;
+        return getAccoutStream()
+                .map(Account::getCurrency)
+                .collect(Collectors.toSet());
     }
 
     /**
      * Zwraca strumień wszystkich firm.
      */
     private static Stream<Company> getCompanyStream() {
-        return null;
+        return holdings.stream()
+                .flatMap(holding -> holding.getCompanies().stream());
     }
 
     /**
      * Tworzy strumień użytkowników.
      */
     private static Stream<User> getUserStream() {
-        return null;
+        return getCompanyStream()
+                .flatMap(company -> company.getUsers().stream());
     }
 
     /**
      * Tworzy strumień rachunków.
      */
     private static Stream<Account> getAccoutStream() {
-        return null;
+        return getUserStream()
+                .flatMap(user -> user.getAccounts().stream());
     }
 
     // =================================================================================
@@ -194,7 +247,11 @@ public class Exercises {
      * Podpowiedź: groupingBy + counting.
      */
     public static Map<Country, Long> getCompaniesCountPerCountry() {
-        return null;
+        return getCompanyStream()
+                .collect(Collectors.groupingBy(
+                        Company::getCountry,
+                        Collectors.counting()
+                ));
     }
 
     /**
@@ -203,7 +260,17 @@ public class Exercises {
      * Podpowiedź: groupingBy w groupingBy, a na końcu mapping.
      */
     public static Map<Region, Map<Country, List<String>>> getCompanyNamesPerRegionAndCountry() {
-        return null;
+        return getCompanyStream()
+                .collect(Collectors.groupingBy(
+                        (Company c) -> c.getCountry().getRegion(),
+                        Collectors.groupingBy(
+                                Company::getCountry,
+                                Collectors.mapping(
+                                        Company::getName,
+                                        Collectors.toList()
+                                )
+                        )
+                ));
     }
 
     /**
@@ -213,7 +280,16 @@ public class Exercises {
      * Podpowiedź: BigDecimal nie ma Collectors.summingBigDecimal – użyj reduce albo Collectors.reducing.
      */
     public static Map<String, BigDecimal> getTotalBalanceInPlnPerHolding() {
-        return null;
+        return holdings.stream()
+                .collect(Collectors.toMap(
+                        Holding::getName,
+                        holding -> holding.getCompanies().stream()
+                                .flatMap(company -> company.getUsers().stream())
+                                .flatMap(user -> user.getAccounts().stream())
+                                .map(Exercises::getAccountAmountInPLN)
+                                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                                .setScale(2, RoundingMode.HALF_UP)
+                ));
     }
 
     /**
@@ -222,7 +298,12 @@ public class Exercises {
      * Podpowiedź: groupingBy z trzema argumentami i EnumMap jako fabryką mapy + mapping.
      */
     public static Map<AccountType, List<String>> getAccountNumbersPerType() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        Account::getType,
+                        () -> new EnumMap<>(AccountType.class),
+                        Collectors.mapping(Account::getNumber, Collectors.toList())
+                ));
     }
 
     /**
@@ -231,7 +312,14 @@ public class Exercises {
      * Podpowiedź: partitioningBy z kolektorem downstream.
      */
     public static Map<Boolean, List<String>> partitionUserNamesByAge(final int age) {
-        return null;
+        return getUserStream()
+                .collect(Collectors.partitioningBy(
+                        user -> user.getAge() >= age,
+                        Collectors.mapping(
+                                user -> user.getFirstName() + " " + user.getLastName(),
+                                Collectors.toList()
+                        )
+                ));
     }
 
     /**
@@ -240,7 +328,18 @@ public class Exercises {
      * Kolejność MUSI być zachowana po zwróceniu mapy – zwróć uwagę na implementację mapy.
      */
     public static LinkedHashMap<String, Long> getUsersCountPerCompanyDescending() {
-        return null;
+        return getCompanyStream()
+                .collect(Collectors.toMap(
+                        Company::getName,
+                        company -> (long) company.getUsers().size()))
+                .entrySet().stream()
+                .sorted(Map.Entry.<String, Long>comparingByValue().reversed()
+                        .thenComparing(Map.Entry.comparingByKey()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (a, b) -> a,
+                        LinkedHashMap::new));
     }
 
     /**
@@ -249,14 +348,20 @@ public class Exercises {
      * Podpowiedź: Comparator.comparingInt(...).thenComparing(...).
      */
     public static Optional<User> getUserWithMostAccounts() {
-        return null;
+        return getUserStream()
+                .max(Comparator.comparingInt((User user) -> user.getAccounts().size())
+                        .thenComparing(User::getLastName));
     }
 
     /**
      * Zwraca mapę: płeć -> średni wiek pracowników tej płci. Mapa w kolejności enuma Sex.
      */
     public static Map<Sex, Double> getAverageAgePerSex() {
-        return null;
+        return getUserStream()
+                .collect(Collectors.groupingBy(
+                        User::getSex,
+                        () -> new EnumMap<>(Sex.class),
+                        Collectors.averagingInt(User::getAge)));
     }
 
     /**
@@ -265,7 +370,9 @@ public class Exercises {
      * Podpowiedź: strumień prymitywny i summaryStatistics().
      */
     public static IntSummaryStatistics getAgeStatistics() {
-        return null;
+        return getUserStream()
+                .mapToInt(User::getAge)
+                .summaryStatistics();
     }
 
     /**
@@ -273,7 +380,15 @@ public class Exercises {
      * sumujemy kwoty w ich własnej walucie. Mapa w kolejności enuma Currency.
      */
     public static Map<Currency, BigDecimal> getTotalBalancePerCurrency() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        Account::getCurrency,
+                        () -> new EnumMap<>(Currency.class),
+                        Collectors.reducing(
+                                BigDecimal.ZERO,
+                                Account::getAmount,
+                                BigDecimal::add)
+                ));
     }
 
     /**
@@ -282,7 +397,13 @@ public class Exercises {
      * Przy tej samej kwocie decyduje alfabetyczna kolejność nazwiska.
      */
     public static List<String> getTopRichestUsers(final int n) {
-        return null;
+        return getUserStream()
+                .sorted(Comparator.comparing(Exercises::getUserAmountInPLN).reversed()
+                        .thenComparing(User::getLastName))
+                .limit(n)
+                .map(user -> user.getFirstName() + " " + user.getLastName() + " - " + getUserAmountInPLN(user)
+                        + Currency.PLN)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -290,7 +411,13 @@ public class Exercises {
      * Podpowiedź: jeden pracownik ma wiele uprawnień – zacznij od flatMap.
      */
     public static Map<Permit, Long> getUsersCountPerPermit() {
-        return null;
+        return getUserStream()
+                .flatMap(user -> user.getPermits().stream())
+                .collect(Collectors.groupingBy(
+                        permit -> permit,
+                        () -> new EnumMap<>(Permit.class),
+                        Collectors.counting()
+                ));
     }
 
     /**
@@ -298,7 +425,17 @@ public class Exercises {
      * Wewnętrzna mapa ma być w kolejności enuma Sex i nie może zawierać płci, których w firmie nie ma.
      */
     public static Map<String, Map<Sex, List<String>>> getUserNamesPerCompanyAndSex() {
-        return null;
+        return getCompanyStream()
+                .collect(Collectors.toMap(
+                        Company::getName,
+                        company -> company.getUsers().stream()
+                                .collect(Collectors.groupingBy(
+                                        User::getSex,
+                                        () -> new EnumMap<>(Sex.class),
+                                        Collectors.mapping(
+                                                user -> user.getFirstName() + " " + user.getLastName(),
+                                                Collectors.toList())))
+                ));
     }
 
     /**
@@ -309,7 +446,12 @@ public class Exercises {
      * Podpowiedź: String.format("%-14s %s (%d)", ...), "#".repeat(n) i Collectors.joining("\n").
      */
     public static String getPermitsHistogram() {
-        return null;
+        return getUsersCountPerPermit().entrySet().stream()
+                .sorted(Map.Entry.<Permit, Long>comparingByValue().reversed()
+                        .thenComparing(Map.Entry.comparingByKey()))
+                .map(e -> String.format("%-14s %s (%d)", e.getKey(), "#".repeat(e.getValue().intValue()),
+                        e.getValue()))
+                .collect(Collectors.joining("\n"));
     }
 
     /**
@@ -318,14 +460,31 @@ public class Exercises {
      * Podpowiedź: Collectors.teeing – jednym kolektorem sumujesz, drugim liczysz, a w funkcji scalającej dzielisz.
      */
     public static Map<AccountCategory, BigDecimal> getAverageBalanceInPlnPerCategory() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        account -> account.getType().getCategory(),
+                        () -> new EnumMap<>(AccountCategory.class),
+                        Collectors.teeing(
+                                Collectors.reducing(BigDecimal.ZERO, Exercises::getAccountAmountInPLN, BigDecimal::add),
+                                Collectors.counting(),
+                                (amountSum, accountNumber) -> amountSum.divide(BigDecimal.valueOf(accountNumber), 2,
+                                        RoundingMode.HALF_UP)
+                        )
+                ));
     }
 
     /**
      * Zwraca zbiór imion, które w danych występują więcej niż raz.
      */
     public static Set<String> getDuplicatedFirstNames() {
-        return null;
+        return getUserStream()
+                .collect(Collectors.groupingBy(
+                        User::getFirstName,
+                        Collectors.counting()))
+                .entrySet().stream()
+                .filter(name -> name.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -333,7 +492,12 @@ public class Exercises {
      * Zwróć uwagę na typ wartości – kolektor maxBy zwraca Optional i tak ma zostać.
      */
     public static Map<Currency, Optional<Account>> getRichestAccountPerCurrency() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        Account::getCurrency,
+                        () -> new EnumMap<>(Currency.class),
+                        Collectors.maxBy(Comparator.comparing(Account::getAmount))
+                ));
     }
 
     /**
@@ -343,7 +507,20 @@ public class Exercises {
      * Podpowiedź: BigDecimal.movePointLeft(2) jest bezpieczniejsze niż divide(BigDecimal.valueOf(100)).
      */
     public static Map<AccountCategory, BigDecimal> getYearlyInterestInPlnPerCategory() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        a -> a.getType().getCategory(),
+                        () -> new EnumMap<>(AccountCategory.class),
+                        Collectors.collectingAndThen(
+                                Collectors.reducing(
+                                        BigDecimal.ZERO,
+                                        a -> getAccountAmountInPLN(a)
+                                                .multiply(a.getType().getInterestRate())
+                                                .movePointLeft(2),
+                                        BigDecimal::add
+                                ),
+                                sum -> sum.setScale(2, RoundingMode.HALF_UP))
+                ));
     }
 
     /**
@@ -352,7 +529,12 @@ public class Exercises {
      * W mapie nie może być pustych przedziałów.
      */
     public static TreeMap<String, List<String>> getUserNamesPerAgeBracket() {
-        return null;
+        return getUserStream()
+                .collect(Collectors.groupingBy(
+                        user -> (user.getAge() / 10 * 10) + "-" + (user.getAge() / 10 * 10 + 9),
+                        TreeMap::new,
+                        Collectors.mapping(user -> user.getFirstName() + " " + user.getLastName(),
+                                Collectors.toList())));
     }
 
     // =================================================================================
@@ -378,7 +560,9 @@ public class Exercises {
      * Podpowiedź: mapowanie wewnątrz flatMap.
      */
     public static Stream<CompanyUser> getCompanyUserStream() {
-        return null;
+        return getCompanyStream()
+                .flatMap(company -> company.getUsers().stream()
+                        .map(user -> new CompanyUser(company, user)));
     }
 
     /**
@@ -387,7 +571,17 @@ public class Exercises {
      * Podpowiedź: wykorzystaj getCompanyUserStream, a potem Map.entry jako parę uprawnienie-firma.
      */
     public static Map<Permit, Set<String>> getCompanyNamesPerPermit() {
-        return null;
+        return getCompanyUserStream()
+                .flatMap(companyUser -> companyUser.user.getPermits().stream()
+                        .map(permit -> Map.entry(permit, companyUser.company().getName())))
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        () -> new EnumMap<>(Permit.class),
+                        Collectors.mapping(
+                                Map.Entry::getValue,
+                                Collectors.toCollection(TreeSet::new)
+                        )
+                ));
     }
 
     /**
@@ -395,7 +589,11 @@ public class Exercises {
      * Czteropoziomowy flatMap. Ten strumień to podstawa raportów w kolejnych zadaniach.
      */
     public static Stream<AccountRow> getAccountRowStream() {
-        return null;
+        return holdings.stream()
+                .flatMap(holding -> holding.getCompanies().stream()
+                        .flatMap(company -> company.getUsers().stream()
+                                .flatMap(user -> user.getAccounts().stream()
+                                        .map(account -> new AccountRow(holding, company, user, account)))));
     }
 
     /**
@@ -409,7 +607,18 @@ public class Exercises {
      * ale w komentarzu napisz, dlaczego takie rozwiązanie NIE zadziała na strumieniu równoległym.
      */
     public static LinkedHashMap<String, BigDecimal> getCumulativeBalanceInPlnByOpenDate() {
-        return null;
+        BigDecimal[] sum = {BigDecimal.ZERO};
+        return getAccoutStream()
+                .sorted(Comparator.comparing(Account::getOpenedAt)
+                        .thenComparing(Account::getNumber))
+                .collect(Collectors.toMap(
+                        Account::getNumber,
+                        account -> {
+                            sum[0] = sum[0].add(getAccountAmountInPLN(account));
+                            return sum[0].setScale(2, RoundingMode.HALF_UP);
+                        },
+                        (a, b) -> a,
+                        LinkedHashMap::new));
     }
 
     /**
@@ -418,7 +627,17 @@ public class Exercises {
      * Podpowiedź: groupingBy z TreeMap::new oraz collectingAndThen do zaokrąglenia sumy.
      */
     public static Map<Integer, BigDecimal> getTotalBalanceInPlnPerOpeningYear() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        account -> account.getOpenedAt().getYear(),
+                        TreeMap::new,
+                        Collectors.collectingAndThen(
+                                Collectors.reducing(
+                                        BigDecimal.ZERO,
+                                        Exercises::getAccountAmountInPLN,
+                                        BigDecimal::add),
+                                sum -> sum.setScale(2, RoundingMode.HALF_UP)))
+                );
     }
 
     /**
@@ -426,7 +645,12 @@ public class Exercises {
      * Mapa w naturalnej kolejności dni tygodnia (poniedziałek najpierw), bez dni, w których nic nie otwarto.
      */
     public static Map<DayOfWeek, Long> getAccountsCountPerOpeningWeekDay() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        account -> account.getOpenedAt().getDayOfWeek(),
+                        () -> new EnumMap<>(DayOfWeek.class),
+                        Collectors.counting()
+                ));
     }
 
     /**
@@ -442,7 +666,19 @@ public class Exercises {
      * drugi raz na tę samą osobę.
      */
     public static List<User> getManagerChain(final String email) {
-        return null;
+        return getUserStream()
+                .filter(user -> user.getEmail().equals(email))
+                .findFirst()
+                .map(startUser -> Stream.iterate(
+                                startUser,
+                                user -> user != null,
+                                user -> getUserStream()
+                                        .filter(manager -> manager.getEmail().equals(user.getManagerEmail()))
+                                        .findFirst()
+                                        .orElse(null))
+                        .takeWhile(new HashSet<>()::add)
+                        .collect(Collectors.toList()))
+                .orElse(List.of());
     }
 
     /**
@@ -450,14 +686,24 @@ public class Exercises {
      * getManagerChain). Mapa posortowana po e-mailu.
      */
     public static Map<String, Integer> getOrgDepthPerEmail() {
-        return null;
+        return getUserStream()
+                .collect(Collectors.toMap(
+                        User::getEmail,
+                        user -> getManagerChain(user.getEmail()).size(),
+                        (a, b) -> a,
+                        TreeMap::new
+                ));
     }
 
     /**
      * Zwraca pracownika o najdłuższej ścieżce przełożonych. Przy remisie wygrywa e-mail dalszy w alfabecie.
      */
     public static Optional<User> getUserWithLongestManagerChain() {
-        return null;
+        return getUserStream()
+                .max(Comparator.comparingInt(
+                                (User user) -> getManagerChain(user.getEmail()).size())
+                        .thenComparing(User::getEmail)
+                );
     }
 
     /**
@@ -467,7 +713,11 @@ public class Exercises {
      * W danych są dwie takie osoby.
      */
     public static Set<String> findUsersWithMismatchedEmailDomain() {
-        return null;
+        return getCompanyUserStream()
+                .filter(companyUser -> !companyUser.user.getEmail()
+                        .endsWith("@" + companyUser.company().getName().toLowerCase() + ".com"))
+                .map(companyUser -> companyUser.user.getEmail())
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -475,7 +725,12 @@ public class Exercises {
      * (czyli "wiszące" referencje).
      */
     public static Set<String> findUnknownManagerEmails() {
-        return null;
+        return getUserStream()
+                .map(User::getManagerEmail)
+                .filter(Objects::nonNull)
+                .filter(email -> getUserStream()
+                        .noneMatch(user -> user.getEmail().equals(email)))
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -488,7 +743,30 @@ public class Exercises {
      * Podpowiedź: String.format i Collectors.joining("\n").
      */
     public static String buildHoldingReport() {
-        return null;
+        return holdings.stream()
+                .sorted(Comparator.comparing(Holding::getName))
+                .map(holding -> {
+                    var stats = holding.getCompanies().stream()
+                            .flatMap(company -> company.getUsers().stream())
+                            .collect(Collectors.teeing(
+                                    Collectors.counting(),
+                                    Collectors.reducing(
+                                            BigDecimal.ZERO,
+                                            Exercises::getUserAmountInPLN,
+                                            BigDecimal::add
+                                    ),
+                                    (number, sum) -> new Object[]{number, sum}
+                            ));
+                    long employees = (long) stats[0];
+                    BigDecimal sum = ((BigDecimal) stats[1])
+                            .setScale(2, RoundingMode.HALF_UP);
+                    return String.format("%-10s firm: %d, pracownikow: %2d, suma: %18s PLN",
+                            holding.getName(),
+                            holding.getCompanies().size(),
+                            employees,
+                            sum);
+                })
+                .collect(Collectors.joining("\n"));
     }
 
     /**
@@ -498,7 +776,15 @@ public class Exercises {
      * najprościej użyć jednoelementowej tablicy BigDecimal[].
      */
     public static Collector<Account, ?, BigDecimal> sumInPlnCollector() {
-        return null;
+        return Collector.of(
+                () -> new BigDecimal[]{BigDecimal.ZERO},
+                (accumulator, account) -> accumulator[0] = accumulator[0].add(getAccountAmountInPLN(account)),
+                (accumulator1, accumulator2) -> {
+                    accumulator1[0] = accumulator1[0].add(accumulator2[0]);
+                    return accumulator1;
+                },
+                accumulator -> accumulator[0].setScale(2, RoundingMode.HALF_UP)
+        );
     }
 
     /**
@@ -507,7 +793,15 @@ public class Exercises {
      * Podpowiedź: Collectors.mapping pozwala "przerobić" wiersz na rachunek przed przekazaniem do kolektora.
      */
     public static Map<String, BigDecimal> getTotalBalanceInPlnPerCity() {
-        return null;
+        return getAccountRowStream()
+                .collect(Collectors.groupingBy(
+                        row -> row.company().getCity(),
+                        TreeMap::new,
+                        Collectors.mapping(
+                                AccountRow::account,
+                                sumInPlnCollector()
+                        )
+                ));
     }
 
     /**
@@ -517,7 +811,18 @@ public class Exercises {
      * Podpowiedź: kluczem grupowania jest rekord DayCurrency – dlatego rekord, że ma gotowe equals i hashCode.
      */
     public static List<String> findAccountsOpenedSameDayInSameCurrency() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        account -> new DayCurrency(account.getOpenedAt(), account.getCurrency()),
+                        Collectors.mapping(Account::getNumber, Collectors.toList())
+                ))
+                .entrySet().stream()
+                .filter(element -> element.getValue().size() > 1)
+                .sorted(Comparator.comparing((Map.Entry<DayCurrency, List<String>> element) -> element.getKey().day())
+                        .thenComparing(element -> element.getKey().currency()))
+                .map(element -> element.getKey().day() + " " + element.getKey().currency() + ": "
+                        + String.join(", ", element.getValue()))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -528,7 +833,12 @@ public class Exercises {
      * w którym peek jest usprawiedliwiony.
      */
     public static long countCheckedAccountsUntilFirstMatch(final Predicate<Account> predicate) {
-        return 0;
+        long[] counter = {0};
+        getAccoutStream()
+                .peek(account -> counter[0]++)
+                .filter(predicate)
+                .findFirst();
+        return counter[0];
     }
 
     /**
@@ -538,7 +848,13 @@ public class Exercises {
      * skoro allMatch na pustym strumieniu nie rzuca wyjątkiem?
      */
     public static List<String> getCompanyNamesWhereAllUsersHaveAllPermits() {
-        return null;
+        return getCompanyStream()
+                .filter(company -> !company.getUsers().isEmpty())
+                .filter(company -> company.getUsers().stream()
+                        .allMatch(user -> user.getPermits().containsAll(Arrays.asList(Permit.values()))))
+                .map(Company::getName)
+                .sorted().collect(Collectors.toList());
+//        allMatch na pustym zbiorze zwraca true, a to by dało fałszywy wynik
     }
 
     /**
@@ -548,7 +864,13 @@ public class Exercises {
      * zwykłej ArrayList w forEach nie byłoby?
      */
     public static BigDecimal getTotalBalanceInPlnParallel() {
-        return null;
+        return getAccoutStream()
+                .parallel()
+                .map(Exercises::getAccountAmountInPLN)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
+//        Reduce z BigDecimal jest bezpieczne bo BD nie zminia istniejacych obiektów tylko tworzy nowe wyniki, które są następnie łączone
+//        ArratList.add w forEach byłoby niebezpieczne bo wiele wątków modyfikowałoby jednocześnie ta samą liste.
     }
 
     /**
@@ -556,7 +878,21 @@ public class Exercises {
      * Wynik musi być identyczny.
      */
     public static Map<Permit, Set<String>> getCompanyNamesPerPermitWithMapMulti() {
-        return null;
+        return getCompanyUserStream()
+                .<Map.Entry<Permit, String>>mapMulti((((companyUser, downstream) -> {
+                    companyUser.user().getPermits().stream()
+                            .forEach(permit -> {
+                                downstream.accept(Map.entry(permit, companyUser.company().getName()));
+                            });
+                })))
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        () -> new EnumMap<>(Permit.class),
+                        Collectors.mapping(
+                                Map.Entry::getValue,
+                                Collectors.toCollection(TreeSet::new)
+                        )
+                ));
     }
 
     // =================================================================================
@@ -573,9 +909,8 @@ public class Exercises {
      */
     public static String pulapkaReuzycieStreamu() {
         List<String> imiona = List.of("Adam", "Jan", "Zosia", "Jan");
-        Stream<String> stream = imiona.stream();
-        long liczba = stream.count();
-        String pierwsze = stream.findFirst().orElse("brak");
+        long liczba = imiona.stream().count();
+        String pierwsze = imiona.stream().findFirst().orElse("brak");
         return "liczba=" + liczba + ", pierwsze=" + pierwsze;
     }
 
@@ -588,7 +923,8 @@ public class Exercises {
         return osoby.stream()
                 .collect(Collectors.toMap(
                         o -> o.split(" ")[0],
-                        o -> o.split(" ")[1]));
+                        o -> o.split(" ")[1],
+                        (a, b) -> a + " / " + b));
     }
 
     /**
@@ -599,6 +935,7 @@ public class Exercises {
     public static List<Integer> pulapkaNieskonczonyStream() {
         return Stream.iterate(1, i -> i + 1)
                 .filter(i -> i % 7 == 0)
+                .limit(10)
                 .collect(Collectors.toList());
     }
 
@@ -609,14 +946,9 @@ public class Exercises {
      */
     public static List<Integer> pulapkaSideEffect() {
         List<String> slowa = List.of("stream", "lambda", "kolektor", "map");
-        List<Integer> dlugosci = new ArrayList<>();
-        slowa.stream()
-                .map(s -> {
-                    dlugosci.add(s.length());
-                    return s;
-                })
-                .count();
-        return dlugosci;
+        return slowa.stream()
+                .map(String::length)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -626,7 +958,8 @@ public class Exercises {
     public static int pulapkaBoxing() {
         List<Integer> wiek = List.of(17, 33, 18, 46, 67, 33, 29, 33, 18, 21, 50, 37, 45, 29, 29, 64, 33, 28, 22, 40);
         return wiek.stream()
-                .reduce(0, Integer::sum);
+                .mapToInt(Integer::intValue)
+                .sum();
     }
 
     /**
@@ -637,7 +970,7 @@ public class Exercises {
         return slowa.stream()
                 .filter(s -> s.length() > 100)
                 .findFirst()
-                .get();
+                .orElse("brak takiego slowa");
     }
 
     // =================================================================================
@@ -719,7 +1052,7 @@ public class Exercises {
         wynik("D2  pulapkaKolizjaWToMap", Exercises::pulapkaKolizjaWToMap);
         System.out.println("- D3  pulapkaNieskonczonyStream:");
         System.out.println("    (pominiete - obecna wersja zawiesza program, odkomentuj po naprawie)");
-        // wynik("D3  pulapkaNieskonczonyStream", Exercises::pulapkaNieskonczonyStream);
+         wynik("D3  pulapkaNieskonczonyStream", Exercises::pulapkaNieskonczonyStream);
         wynik("D4  pulapkaSideEffect", Exercises::pulapkaSideEffect);
         wynik("D5  pulapkaBoxing", Exercises::pulapkaBoxing);
         wynik("D6  pulapkaOptionalGet", Exercises::pulapkaOptionalGet);
