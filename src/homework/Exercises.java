@@ -811,7 +811,18 @@ public class Exercises {
      * Podpowiedź: kluczem grupowania jest rekord DayCurrency – dlatego rekord, że ma gotowe equals i hashCode.
      */
     public static List<String> findAccountsOpenedSameDayInSameCurrency() {
-        return null;
+        return getAccoutStream()
+                .collect(Collectors.groupingBy(
+                        account -> new DayCurrency(account.getOpenedAt(), account.getCurrency()),
+                        Collectors.mapping(Account::getNumber, Collectors.toList())
+                ))
+                .entrySet().stream()
+                .filter(element -> element.getValue().size() > 1)
+                .sorted(Comparator.comparing((Map.Entry<DayCurrency, List<String>> element) -> element.getKey().day())
+                        .thenComparing(element -> element.getKey().currency()))
+                .map(element -> element.getKey().day() + " " + element.getKey().currency() + ": "
+                        + String.join(", ", element.getValue()))
+                .collect(Collectors.toList());
     }
 
     /**
