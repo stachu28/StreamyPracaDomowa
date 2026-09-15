@@ -869,6 +869,8 @@ public class Exercises {
                 .map(Exercises::getAccountAmountInPLN)
                 .reduce(BigDecimal.ZERO, BigDecimal::add)
                 .setScale(2, RoundingMode.HALF_UP);
+//        Reduce z BigDecimal jest bezpieczne bo BD nie zminia istniejacych obiektów tylko tworzy nowe wyniki, które są następnie łączone
+//        ArratList.add w forEach byłoby niebezpieczne bo wiele wątków modyfikowałoby jednocześnie ta samą liste.
     }
 
     /**
@@ -876,7 +878,21 @@ public class Exercises {
      * Wynik musi być identyczny.
      */
     public static Map<Permit, Set<String>> getCompanyNamesPerPermitWithMapMulti() {
-        return null;
+        return getCompanyUserStream()
+                .<Map.Entry<Permit, String>>mapMulti((((companyUser, downstream) -> {
+                    companyUser.user().getPermits().stream()
+                            .forEach(permit -> {
+                                downstream.accept(Map.entry(permit, companyUser.company().getName()));
+                            });
+                })))
+                .collect(Collectors.groupingBy(
+                        Map.Entry::getKey,
+                        () -> new EnumMap<>(Permit.class),
+                        Collectors.mapping(
+                                Map.Entry::getValue,
+                                Collectors.toCollection(TreeSet::new)
+                        )
+                ));
     }
 
     // =================================================================================
