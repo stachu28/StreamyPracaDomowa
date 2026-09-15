@@ -909,9 +909,8 @@ public class Exercises {
      */
     public static String pulapkaReuzycieStreamu() {
         List<String> imiona = List.of("Adam", "Jan", "Zosia", "Jan");
-        Stream<String> stream = imiona.stream();
-        long liczba = stream.count();
-        String pierwsze = stream.findFirst().orElse("brak");
+        long liczba = imiona.stream().count();
+        String pierwsze = imiona.stream().findFirst().orElse("brak");
         return "liczba=" + liczba + ", pierwsze=" + pierwsze;
     }
 
@@ -924,7 +923,8 @@ public class Exercises {
         return osoby.stream()
                 .collect(Collectors.toMap(
                         o -> o.split(" ")[0],
-                        o -> o.split(" ")[1]));
+                        o -> o.split(" ")[1],
+                        (a, b) -> a + " / " + b));
     }
 
     /**
@@ -935,6 +935,7 @@ public class Exercises {
     public static List<Integer> pulapkaNieskonczonyStream() {
         return Stream.iterate(1, i -> i + 1)
                 .filter(i -> i % 7 == 0)
+                .limit(10)
                 .collect(Collectors.toList());
     }
 
@@ -945,14 +946,9 @@ public class Exercises {
      */
     public static List<Integer> pulapkaSideEffect() {
         List<String> slowa = List.of("stream", "lambda", "kolektor", "map");
-        List<Integer> dlugosci = new ArrayList<>();
-        slowa.stream()
-                .map(s -> {
-                    dlugosci.add(s.length());
-                    return s;
-                })
-                .count();
-        return dlugosci;
+        return slowa.stream()
+                .map(String::length)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -962,7 +958,8 @@ public class Exercises {
     public static int pulapkaBoxing() {
         List<Integer> wiek = List.of(17, 33, 18, 46, 67, 33, 29, 33, 18, 21, 50, 37, 45, 29, 29, 64, 33, 28, 22, 40);
         return wiek.stream()
-                .reduce(0, Integer::sum);
+                .mapToInt(Integer::intValue)
+                .sum();
     }
 
     /**
@@ -973,7 +970,7 @@ public class Exercises {
         return slowa.stream()
                 .filter(s -> s.length() > 100)
                 .findFirst()
-                .get();
+                .orElse("brak takiego slowa");
     }
 
     // =================================================================================
@@ -1055,7 +1052,7 @@ public class Exercises {
         wynik("D2  pulapkaKolizjaWToMap", Exercises::pulapkaKolizjaWToMap);
         System.out.println("- D3  pulapkaNieskonczonyStream:");
         System.out.println("    (pominiete - obecna wersja zawiesza program, odkomentuj po naprawie)");
-        // wynik("D3  pulapkaNieskonczonyStream", Exercises::pulapkaNieskonczonyStream);
+         wynik("D3  pulapkaNieskonczonyStream", Exercises::pulapkaNieskonczonyStream);
         wynik("D4  pulapkaSideEffect", Exercises::pulapkaSideEffect);
         wynik("D5  pulapkaBoxing", Exercises::pulapkaBoxing);
         wynik("D6  pulapkaOptionalGet", Exercises::pulapkaOptionalGet);
