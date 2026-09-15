@@ -854,6 +854,7 @@ public class Exercises {
                         .allMatch(user -> user.getPermits().containsAll(Arrays.asList(Permit.values()))))
                 .map(Company::getName)
                 .sorted().collect(Collectors.toList());
+//        allMatch na pustym zbiorze zwraca true, a to by dało fałszywy wynik
     }
 
     /**
