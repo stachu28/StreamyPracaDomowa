@@ -864,7 +864,11 @@ public class Exercises {
      * zwykłej ArrayList w forEach nie byłoby?
      */
     public static BigDecimal getTotalBalanceInPlnParallel() {
-        return null;
+        return getAccoutStream()
+                .parallel()
+                .map(Exercises::getAccountAmountInPLN)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     /**
